@@ -20,6 +20,9 @@ import com.cloudera.api.v10.RootResourceV10;
 import com.cloudera.api.v11.RootResourceV11;
 import com.cloudera.api.v12.RootResourceV12;
 import com.cloudera.api.v13.RootResourceV13;
+import com.cloudera.api.v14.RootResourceV14;
+import com.cloudera.api.v15.RootResourceV15;
+import com.cloudera.api.v16.RootResourceV16;
 import com.cloudera.api.v2.RootResourceV2;
 import com.cloudera.api.v3.RootResourceV3;
 import com.cloudera.api.v4.RootResourceV4;
@@ -121,6 +124,29 @@ public interface ApiRootResource {
    */
   @Path("/v13")
   RootResourceV13 getRootV13();
+
+  /**
+   * @return The v14 root resource.
+   */
+  @Path("/v14")
+  RootResourceV14 getRootV14();
+
+  /**
+   * @return The v15 root resource.
+   */
+  @Path("/v15")
+  RootResourceV15 getRootV15();
+
+  /**
+   * @return The v15 root resource.
+   */
+  @Path("/v16")
+  RootResourceV16 getRootV16();
+
+  /**
+   * Important: Update {@link ApiRootResourceExternal} interface as well
+   * on adding new CM API version.
+   */
 
   /**
    * Fetch the current API version supported by the server.

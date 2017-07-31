@@ -34,7 +34,7 @@ public class ApiCollectDiagnosticDataArguments {
   private String ticketNumber;
   private String comments;
   private String clusterName;
-  private boolean enableMonitorMetricsCollection;
+  private Boolean enableMonitorMetricsCollection;
   private List<String> roles;
 
   /**
@@ -47,7 +47,7 @@ public class ApiCollectDiagnosticDataArguments {
   public void setBundleSize(long bundleSizeByte) {
     this.bundleSizeBytes = bundleSizeByte;
   }
-  
+
   /**
    * This parameter is ignored between CM 4.5 and CM 5.7 versions.
    * For versions from CM 4.5 to CM 5.7, use endTime and
@@ -81,7 +81,7 @@ public class ApiCollectDiagnosticDataArguments {
   }
 
   /**
-   * This parameter is ignored as of CM 4.5. 
+   * This parameter is ignored as of CM 4.5.
    * INFO logs are always collected.
    * Whether to include INFO level logs.
    * WARN, ERROR, and FATAL level logs are always included.
@@ -113,14 +113,14 @@ public class ApiCollectDiagnosticDataArguments {
   public void setComments(String comments) {
     this.comments = comments;
   }
-  
+
   /**
    * Name of the cluster to collect. If null, collects from all clusters.
    */
-  public String getClusterName() { 
+  public String getClusterName() {
     return clusterName;
   }
-  
+
   public void setClusterName(String clusterName) {
     this.clusterName = clusterName;
   }
@@ -128,11 +128,12 @@ public class ApiCollectDiagnosticDataArguments {
   /**
    * Flag to enable collection of metrics for chart display.
    */
-  public boolean getEnableMonitorMetricsCollection() {
+  @XmlElement
+  public Boolean getEnableMonitorMetricsCollection() {
     return enableMonitorMetricsCollection;
   }
 
-  public void setEnableMonitorMetricsCollection(boolean enable) {
+  public void setEnableMonitorMetricsCollection(Boolean enable) {
     this.enableMonitorMetricsCollection = enable;
   }
 

@@ -187,16 +187,28 @@ class ClouderaManager(BaseApiResource):
         'endTime': end_datetime.isoformat(),
         'includeInfoLog': includeInfoLog,
     }
-    return self._cmd('collectDiagnosticData', data=args)
+    # This method is deprecated as of CM API version 3 which was introduced
+    # in CM 4.5.
+    return self._cmd('collectDiagnosticData', data=args, api_version=2)
 
-  def collect_diagnostic_data_45(self, end_datetime, bundle_size_bytes, cluster_name=None, roles=None):
+  def collect_diagnostic_data_45(self, end_datetime, bundle_size_bytes, cluster_name=None,
+                                 roles=None, collect_metrics=False, start_datetime=None):
     """
     Issue the command to collect diagnostic data.
+    If start_datetime is specified, diagnostic data is collected for the entire period between
+    start_datetime and end_datetime provided that bundle size is less than or equal to
+    bundle_size_bytes. Diagnostics data collection fails if the bundle size is greater than
+    bundle_size_bytes.
+
+    If start_datetime is not specified, diagnostic data is collected starting from end_datetime
+    and collecting backwards upto a maximum of bundle_size_bytes.
 
     @param end_datetime: The end of the collection period. Type datetime.
     @param bundle_size_bytes: The target size for the support bundle in bytes
     @param cluster_name: The cluster to collect or None for all clusters
     @param roles: Role ids of roles to restrict log and metric collection to. Valid since v10.
+    @param collect_metrics: Whether to collect metrics for viewing as charts. Valid since v13.
+    @param start_datetime: The start of the collection period. Type datetime. Valid since v13.
     """
     args = {
         'endTime': end_datetime.isoformat(),
@@ -205,6 +217,10 @@ class ClouderaManager(BaseApiResource):
     }
     if self._get_resource_root().version >= 10:
       args['roles'] = roles
+    if self._get_resource_root().version >= 13:
+      args['enableMonitorMetricsCollection'] = collect_metrics
+      if start_datetime is not None:
+          args['startTime'] = start_datetime.isoformat()
     return self._cmd('collectDiagnosticData', data=args)
 
   def hosts_decommission(self, host_names):
@@ -228,6 +244,23 @@ class ClouderaManager(BaseApiResource):
     @since: API v2
     """
     return self._cmd('hostsRecommission', data=host_names)
+
+  def hosts_recommission_with_start(self, host_names):
+    """
+    Recommission the specified hosts by recommissioning the slave roles.
+    This command will start the roles before recommissioning.
+
+    Warning: Evolving. This method may change in the future and does not
+    offer standard compatibility guarantees.
+    Do not use without guidance from Cloudera.
+
+    Currently, only HDFS DataNodes will be started by this command.
+
+    @param host_names: List of names of hosts to be recommissioned.
+    @return: Information about the submitted command.
+    @since: API v15
+    """
+    return self._cmd('hostsRecommissionWithStart', data=host_names, api_version=15)
 
   def hosts_start_roles(self, host_names):
     """

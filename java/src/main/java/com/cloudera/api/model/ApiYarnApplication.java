@@ -51,6 +51,7 @@ public class ApiYarnApplication {
   private Integer runningContainers;
 
   private Double containerUsedMemorySeconds;
+  private Double containerUsedMemoryMax;
   private Double containerUsedCpuSeconds;
   private Double containerUsedVcoreSeconds;
   private Double containerAllocatedMemorySeconds;
@@ -78,6 +79,7 @@ public class ApiYarnApplication {
       Integer allocatedVCores,
       Integer runningContainers,
       Double containerUsedMemorySeconds,
+      Double containerUsedMemoryMax,
       Double containerUsedCpuSeconds,
       Double containerUsedVcoreSeconds,
       Double containerAllocatedMemorySeconds,
@@ -104,6 +106,7 @@ public class ApiYarnApplication {
     this.allocatedVCores = allocatedVCores;
     this.runningContainers = runningContainers;
     this.containerUsedMemorySeconds = containerUsedMemorySeconds;
+    this.containerUsedMemoryMax = containerUsedMemoryMax;
     this.containerUsedCpuSeconds = containerUsedCpuSeconds;
     this.containerUsedVcoreSeconds = containerUsedVcoreSeconds;
     this.containerAllocatedMemorySeconds = containerAllocatedMemorySeconds;
@@ -304,6 +307,21 @@ public class ApiYarnApplication {
   }
 
   /**
+   * Maximum memory used by containers launched by the YARN application.
+   * Computed by running a MapReduce job from Cloudera Service Monitor to
+   * aggregate YARN usage metrics
+   * Available since v16
+   */
+  @XmlElement
+  public Double getContainerUsedMemoryMax() {
+    return containerUsedMemoryMax;
+  }
+
+  public void setContainerUsedMemoryMax(Double containerUsedMemoryMax) {
+    this.containerUsedMemoryMax = containerUsedMemoryMax;
+  }
+
+  /**
    * Actual CPU (in percent-secs) used by containers launched by the YARN application.
    * Computed by running a MapReduce job from Cloudera Service Monitor to
    * aggregate YARN usage metrics.
@@ -384,6 +402,7 @@ public class ApiYarnApplication {
         .add("allocatedVCores", allocatedVCores)
         .add("runningContainers", runningContainers)
         .add("containerUsedMemorySeconds", containerUsedMemorySeconds)
+        .add("containerUsedMemoryMax", containerUsedMemoryMax)
         .add("containerUsedCpuSeconds", containerUsedCpuSeconds)
         .add("containerUsedVcoreSeconds", containerUsedVcoreSeconds)
         .add("containerAllocatedMemorySeconds", containerAllocatedMemorySeconds)

@@ -16,8 +16,10 @@
 package com.cloudera.api.model;
 
 import com.cloudera.api.ApiUtils;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 
+import java.util.Arrays;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -260,9 +262,20 @@ public class ApiCommand {
 
   /**
    * Available since V11
+   *
+   * @deprecated Use {@link ApiCommand#getCanRetry()} instead
+   */
+  @Deprecated
+  @JsonIgnore
+  public Boolean isCanRetry() {
+    return this.canRetry;
+  }
+
+  /**
+   * If the command can be retried. Available since V11
    */
   @XmlElement
-  public Boolean isCanRetry() {
+  public Boolean getCanRetry() {
     return this.canRetry;
   }
 
@@ -287,7 +300,7 @@ public class ApiCommand {
         Objects.equal(hostRef, that.getHostRef()) &&
         Objects.equal(clusterRef, that.getClusterRef()) &&
         Objects.equal(parent, that.getParent()) &&
-        Objects.equal(canRetry, that.isCanRetry()));
+        Objects.equal(canRetry, that.getCanRetry()));
   }
 
   @Override

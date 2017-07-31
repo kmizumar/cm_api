@@ -226,6 +226,7 @@ public class ApiModelTest {
         "description", "relatedName", ApiConfig.ValidationState.OK,
         "validationMessage");
     cfg.setValidationWarningsSuppressed(true);
+    cfg.setSensitive(false);
     checkJsonXML(cfg);
 
     ApiServiceConfig svcCfg = new ApiServiceConfig();
@@ -528,6 +529,7 @@ public class ApiModelTest {
                                      ApiConfig.ValidationState.OK,
                                      "validationMessage");
     config.setValidationWarningsSuppressed(false);
+    config.setSensitive(true);
     checkJsonXML(config);
   }
 
@@ -684,8 +686,10 @@ public class ApiModelTest {
     res.setTableCount(1);
     res.setImpalaUDFs(Arrays.asList(new ApiImpalaUDF("db1", "func1")));
     res.setImpalaUDFCount(1);
+    res.setHiveUDFs(Arrays.asList(new ApiHiveUDF("db2", "func2")));
+    res.setHiveUDFCount(1);
     res.setErrors(Arrays.asList(new ApiHiveReplicationError("db1", "table1",
-        "func1(STRING)", "error1")));
+        "func1(STRING)", "func2(STRING)", "error1")));
     res.setErrorCount(1);
     res.setDryRun(true);
     res.setPhase("foo");
@@ -859,7 +863,7 @@ public class ApiModelTest {
         "appId", "appName", new Date(), new Date(), "user", "pool",
         "FINISHED", 80.0, mr2Information, Maps.<String, String>newHashMap(),
         ImmutableList.of("foo"), 1234L, 5678L,
-        123, 1, 3, 1d, 2d, 3d, 4d, 5d);
+        123, 1, 3, 1d, 1.5d, 2d, 3d, 4d, 5d);
     checkJsonXML(application);
 
     ApiYarnApplicationResponse response = new ApiYarnApplicationResponse(
@@ -995,6 +999,7 @@ public class ApiModelTest {
     cluster.setMaintenanceMode(true);
     cluster.setName("mycluster");
     cluster.setDisplayName("mycluster-displayName");
+    cluster.setUuid("abcd-efg-hijk-lmnop");
     cluster.setClusterUrl("http://some-url:7180/cmf/clusterRedirect/mycluster");
     cluster.setHostsUrl("http://some-url:7180/cmf/clusterRedirect/mycluster/hosts");
     cluster.setVersion(ApiClusterVersion.CDH4);

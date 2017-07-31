@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlType;
                        "displayName",
                        "description",
                        "relatedName",
+                       "sensitive",
                        "validationState",
                        "validationMessage",
                        "validationWarningsSuppressed" })
@@ -55,6 +56,7 @@ public class ApiConfig {
   private ValidationState validationState;
   private String validationMessage;
   private Boolean validationWarningsSuppressed;
+  private Boolean sensitive;
 
   public static enum ValidationState {
     OK,
@@ -92,7 +94,7 @@ public class ApiConfig {
     this.relatedName = relatedName;
     this.validationState = validationState;
     this.validationMessage = validationMessage;
-    this.validationWarningsSuppressed = null;
+    this.sensitive = null; // unset prior to v14
   }
 
   public ApiConfig(String name, String value) {
@@ -110,6 +112,7 @@ public class ApiConfig {
     this.validationState = null;
     this.validationMessage = null;
     this.validationWarningsSuppressed = null;
+    this.sensitive = null;
   }
 
   public String toString() {
@@ -204,7 +207,7 @@ public class ApiConfig {
 
   /**
    * The user-defined value. When absent, the default value (if any)
-   * will be used.
+   * will be used. Can also be absent, when enumerating allowed configs.
    */
   @XmlElement
   public String getValue() {
@@ -271,5 +274,21 @@ public class ApiConfig {
   public void setValidationWarningsSuppressed(
       Boolean validationWarningsSuppressed) {
     this.validationWarningsSuppressed = validationWarningsSuppressed;
+  }
+
+  /**
+   * Readonly.
+   * Whether this configuration is sensitive, i.e. contains information such as passwords, which
+   * might affect how the value of this configuration might be shared by the caller.
+   *
+   * Available since v14.
+   */
+  @XmlElement
+  public Boolean getSensitive() {
+    return sensitive;
+  }
+
+  public void setSensitive(Boolean sensitive) {
+    this.sensitive = sensitive;
   }
 }

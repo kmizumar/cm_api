@@ -21,12 +21,6 @@ public interface CommandsResourceV11 extends CommandsResource {
   /**
    * Try to rerun a command.
    *
-   * <p>
-   * Note: Only command that supports retry is <i><b>UpgradeCluster</b></i>.
-   * {@link ApiCommand#isCanRetry()} will be true for only
-   * <i><b>UpgradeCluster</b></i> command.
-   * </p>
-   *
    * @param commandId ID of the command that needs to be run.
    * @return Command that represents the retry attempt.
    */

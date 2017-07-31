@@ -22,6 +22,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import java.lang.reflect.Proxy;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -242,7 +243,15 @@ public class ClouderaManagerClientBuilder {
    * @return an ApiRootResource proxy object
    */
   public ApiRootResource build() {
-    return build(ApiRootResource.class);
+    // Generating stubs on ApiRootResource consumes more memory.
+    // Hence we generate stubs using ApiRootResourceExternal and then use dynamic proxy mechanism
+    // to delegate call on ApiRootResource to ApiRootResourceExternal generated stub.
+    ApiRootResourceExternal apiRootResourceExternal = build(ApiRootResourceExternal.class);
+
+    return (ApiRootResource) Proxy.newProxyInstance(
+      ClouderaManagerClientBuilder.class.getClassLoader(),
+      new Class[]{ApiRootResource.class},
+      new ApiRootResourceInvocationHandler(apiRootResourceExternal));
   }
 
   /**
@@ -322,7 +331,7 @@ public class ClouderaManagerClientBuilder {
    * @param root The resource returned by the build() method of this
    *             builder class
    */
-  public static void closeClient(ApiRootResource root) {
+  public static void closeClient(Object root) {
     Client client = WebClient.client(root);
     if (client != null) {
       client.close();

@@ -322,29 +322,32 @@ public class ApiHdfsReplicationArguments {
     this.exclusionFilters = exclusionFilters;
   }
 
+  protected Objects.ToStringHelper toStringHelper() {
+    return Objects.toStringHelper(this)
+        .add("sourceService", sourceService)
+        .add("sourcePath", sourcePath)
+        .add("destinationPath", destinationPath)
+        .add("mapreduceServiceName", mapreduceServiceName)
+        .add("schedulerPoolName", schedulerPoolName)
+        .add("numMaps", numMaps)
+        .add("dryRun", dryRun)
+        .add("bandwidthPerMap", bandwidthPerMap)
+        .add("abortOnError", abortOnError)
+        .add ("removeMissingFiles", removeMissingFiles)
+        .add("preserveReplicationCount", preserveReplicationCount)
+        .add("preserveBlockSize", preserveBlockSize)
+        .add("preservePermissions", preservePermissions)
+        .add("logPath", logPath)
+        .add("skipChecksumChecks", skipChecksumChecks)
+        .add("skipTrash", skipTrash)
+        .add("replicationStrategy", replicationStrategy)
+        .add("preserveXAttrs", preserveXAttrs)
+        .add("exclusionFilters", exclusionFilters);
+  }
+
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
-                  .add("sourceService", sourceService)
-                  .add("sourcePath", sourcePath)
-                  .add("destinationPath", destinationPath)
-                  .add("mapreduceServiceName", mapreduceServiceName)
-                  .add("schedulerPoolName", schedulerPoolName)
-                  .add("numMaps", numMaps)
-                  .add("dryRun", dryRun)
-                  .add("bandwidthPerMap", bandwidthPerMap)
-                  .add("abortOnError", abortOnError)
-                  .add ("removeMissingFiles", removeMissingFiles)
-                  .add("preserveReplicationCount", preserveReplicationCount)
-                  .add("preserveBlockSize", preserveBlockSize)
-                  .add("preservePermissions", preservePermissions)
-                  .add("logPath", logPath)
-                  .add("skipChecksumChecks", skipChecksumChecks)
-                  .add("skipTrash", skipTrash)
-                  .add("replicationStrategy", replicationStrategy)
-                  .add("preserveXAttrs", preserveXAttrs)
-                  .add("exclusionFilters", exclusionFilters)
-                  .toString();
+    return toStringHelper().toString();
   }
 
   @Override

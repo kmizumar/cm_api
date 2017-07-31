@@ -72,6 +72,53 @@ class TestReplicationTypes(unittest.TestCase):
     self.assertEquals('DYNAMIC', args.replicationStrategy)
     self.assertFalse(args.preserveXAttrs)
 
+  def test_hdfs_cloud_arguments(self):
+    RAW = '''{
+      "sourceService" : {
+        "peerName" : "vst2",
+        "clusterName" : "Cluster 1 - CDH4",
+        "serviceName" : "HDFS-1"
+      },
+      "sourcePath" : "/data",
+      "destinationPath" : "/copy/data2",
+      "mapreduceServiceName" : "MAPREDUCE-1",
+      "schedulerPoolName" : "medium",
+      "userName" : "systest",
+      "dryRun" : false,
+      "abortOnError" : true,
+      "removeMissingFiles" : false,
+      "preserveReplicationCount" : true,
+      "preserveBlockSize" : true,
+      "preservePermissions" : false,
+      "skipTrash" : false,
+      "replicationStrategy" : "DYNAMIC",
+      "logPath" : "/tmp",
+      "bandwidthPerMap" : "20",
+      "preserveXAttrs" : false,
+      "exclusionFilters" : ["ac"],
+      "sourceAccount" : "someTestAccount"
+    }'''
+    args = utils.deserialize(RAW, ApiHdfsCloudReplicationArguments)
+    self.assertEquals('vst2', args.sourceService.peerName)
+    self.assertEquals('Cluster 1 - CDH4', args.sourceService.clusterName)
+    self.assertEquals('HDFS-1', args.sourceService.serviceName)
+    self.assertEquals('/data', args.sourcePath)
+    self.assertEquals('/copy/data2', args.destinationPath)
+    self.assertEquals('MAPREDUCE-1', args.mapreduceServiceName)
+    self.assertEquals('medium', args.schedulerPoolName)
+    self.assertEquals('systest', args.userName)
+    self.assertFalse(args.dryRun)
+    self.assertTrue(args.abortOnError)
+    self.assertFalse(args.removeMissingFiles)
+    self.assertTrue(args.preserveBlockSize)
+    self.assertFalse(args.preservePermissions)
+    self.assertTrue(args.preserveReplicationCount)
+    self.assertFalse(args.skipTrash)
+    self.assertEquals('DYNAMIC', args.replicationStrategy)
+    self.assertFalse(args.preserveXAttrs)
+    self.assertEquals('someTestAccount', args.sourceAccount)
+    self.assertEquals(None, args.destinationAccount)
+
   def test_hive_arguments(self):
     RAW = '''{
       "sourceService" : {
@@ -126,6 +173,11 @@ class TestReplicationTypes(unittest.TestCase):
       "impalaUDFs" : [
         { "database" : "db1", "signature" : "func1(STRING)" }
       ],
+      "hiveUDFCount" : 2,
+      "hiveUDFs" : [
+        { "database" : "db1", "signature" : "func1(STRING)" },
+        { "database" : "db2", "signature" : "func2(STRING)" }
+      ],
       "errorCount" : 1,
       "errors" : [
         { "database" : "db1", "tableName" : "table2",
@@ -147,6 +199,12 @@ class TestReplicationTypes(unittest.TestCase):
     self.assertEquals(1, len(res.impalaUDFs))
     self.assertEquals('db1', res.impalaUDFs[0].database)
     self.assertEquals('func1(STRING)', res.impalaUDFs[0].signature)
+    self.assertEquals(2, res.hiveUDFCount)
+    self.assertEquals(2, len(res.hiveUDFs))
+    self.assertEquals('db1', res.hiveUDFs[0].database)
+    self.assertEquals('func1(STRING)', res.hiveUDFs[0].signature)
+    self.assertEquals('db2', res.hiveUDFs[1].database)
+    self.assertEquals('func2(STRING)', res.hiveUDFs[1].signature)
     self.assertEquals(1, res.errorCount)
     self.assertEquals('db1', res.errors[0]['database'])
     self.assertEquals('table2', res.errors[0]['tableName'])
@@ -299,6 +357,53 @@ class TestReplicationRequests(unittest.TestCase):
     self.assertEqual(return_sched.intervalUnit, sched.intervalUnit)
     self.assertEqual(return_sched.interval, sched.interval)
     self.assertIsInstance(sched.hdfsArguments, ApiHdfsReplicationArguments)
+
+    self.resource.expect("GET",
+        "/clusters/cluster1/services/hdfs1/replications",
+        retdata=return_list)
+    service.get_replication_schedules()
+
+    self.resource.expect("GET",
+        "/clusters/cluster1/services/hdfs1/replications/1",
+        retdata=return_sched.to_json_dict())
+    service.get_replication_schedule(1)
+
+    self.resource.expect("PUT",
+        "/clusters/cluster1/services/hdfs1/replications/1",
+        data=return_sched,
+        retdata=return_sched.to_json_dict())
+    service.update_replication_schedule(1, return_sched)
+
+    self.resource.expect("DELETE",
+        "/clusters/cluster1/services/hdfs1/replications/1",
+        retdata=return_sched.to_json_dict())
+    service.delete_replication_schedule(1)
+
+  def test_hdfs_cloud_replication_crud(self):
+    service = ApiService(self.resource, 'hdfs1', 'HDFS')
+    service.__dict__['clusterRef'] = ApiClusterRef(self.resource, clusterName='cluster1')
+
+    hdfs_args = ApiHdfsCloudReplicationArguments(self.resource)
+    hdfs_args.sourceService = ApiServiceRef('cluster2', 'hdfs2')
+    hdfs_args.sourcePath = '/src'
+    hdfs_args.destinationPath = 's3a://somebucket/dst'
+    hdfs_args.destinationAccount = 'someTestAccount'
+
+    return_sched = ApiReplicationSchedule(self.resource,
+        interval=2, intervalUnit='DAY')
+    return_sched.hdfsCloudArguments = hdfs_args
+    return_sched.__dict__['id'] = 1
+    return_list = ApiList([ return_sched ]).to_json_dict()
+
+    self.resource.expect("POST",
+        "/clusters/cluster1/services/hdfs1/replications",
+        retdata=return_list)
+
+    sched = service.create_replication_schedule(
+        None, None, 'DAY', 2, True, hdfs_args, alert_on_fail=True)
+    self.assertEqual(return_sched.intervalUnit, sched.intervalUnit)
+    self.assertEqual(return_sched.interval, sched.interval)
+    self.assertIsInstance(sched.hdfsCloudArguments, ApiHdfsCloudReplicationArguments)
 
     self.resource.expect("GET",
         "/clusters/cluster1/services/hdfs1/replications",

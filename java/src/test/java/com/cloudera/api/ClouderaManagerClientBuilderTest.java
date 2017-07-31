@@ -23,6 +23,8 @@ import org.apache.cxf.transport.http.HTTPConduit;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -33,6 +35,20 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class ClouderaManagerClientBuilderTest {
+
+  /**
+   * Replacement for WebClient.getConfig() on delegated proxy.
+   *
+   * Because we use dynamic proxy mechanism to delegate call from {@link ApiRootResource}
+   * to {@link ApiRootResourceExternal}, instanceof operator doesn't work since they don't
+   * share any common interface. Hence need for this method.
+   */
+  private ClientConfiguration getClientConfigFromProxy(ApiRootResource proxy) {
+    InvocationHandler invocationHandler = Proxy.getInvocationHandler(proxy);
+    assertTrue(invocationHandler instanceof ApiRootResourceInvocationHandler);
+    return WebClient.getConfig(
+      ((ApiRootResourceInvocationHandler)invocationHandler).getDelegateRootResource());
+  }
 
   @Test
   public void testURLGeneration() throws MalformedURLException {
@@ -111,13 +127,13 @@ public class ClouderaManagerClientBuilderTest {
         .withPort(1)
         .enableLogging()
         .build();
-    ClientConfiguration cfg = WebClient.getConfig(proxy);
+    ClientConfiguration cfg = getClientConfigFromProxy(proxy);
     assertNotNull(cfg);
     Boolean maintainSession = (Boolean)cfg.getRequestContext().get(Message.MAINTAIN_SESSION);
     assertNull(maintainSession);
 
     proxy = builder.setMaintainSessionAcrossRequests(true).build();
-    cfg = WebClient.getConfig(proxy);
+    cfg = getClientConfigFromProxy(proxy);
     assertNotNull(cfg);
     maintainSession = (Boolean)cfg.getRequestContext().get(Message.MAINTAIN_SESSION);
     assertTrue(maintainSession);
@@ -130,7 +146,7 @@ public class ClouderaManagerClientBuilderTest {
         .withPort(1)
         .enableLogging()
         .build();
-    ClientConfiguration cfg = WebClient.getConfig(proxy);
+    ClientConfiguration cfg = getClientConfigFromProxy(proxy);
     HTTPConduit conduit = (HTTPConduit) cfg.getConduit();
     HTTPClientPolicy clientPolicy = conduit.getClient();
 
@@ -139,7 +155,7 @@ public class ClouderaManagerClientBuilderTest {
     assertNull(acceptLanguage);
 
     proxy = builder.withAcceptLanguage("some-string").build();
-    cfg = WebClient.getConfig(proxy);
+    cfg = getClientConfigFromProxy(proxy);
     conduit = (HTTPConduit) cfg.getConduit();
     clientPolicy = conduit.getClient();
     assertEquals("some-string", clientPolicy.getAcceptLanguage());
@@ -152,13 +168,13 @@ public class ClouderaManagerClientBuilderTest {
         .withPort(1)
         .enableLogging()
         .build();
-    ClientConfiguration cfg = WebClient.getConfig(proxy);
+    ClientConfiguration cfg = getClientConfigFromProxy(proxy);
     assertNotNull(cfg);
     Boolean autoClosure = (Boolean)cfg.getRequestContext().get("response.stream.auto.close");
     assertNull(autoClosure);
 
     proxy = builder.enableStreamAutoClosure().build();
-    cfg = WebClient.getConfig(proxy);
+    cfg = getClientConfigFromProxy(proxy);
     assertNotNull(cfg);
     autoClosure = (Boolean)cfg.getRequestContext().get("response.stream.auto.close");
     assertTrue(autoClosure);

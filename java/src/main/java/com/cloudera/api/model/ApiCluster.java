@@ -34,11 +34,12 @@ import java.util.List;
 @XmlRootElement(name = "cluster")
 @XmlType(propOrder = {"name", "displayName", "version", "fullVersion",
     "maintenanceMode", "maintenanceOwners", "services", "parcels", "clusterUrl",
-    "hostsUrl", "entityStatus"})
+    "hostsUrl", "entityStatus", "uuid"})
 public class ApiCluster {
 
   private String name;
   private String displayName;
+  private String uuid;
   private String clusterUrl;
   private String hostsUrl;
   private ApiClusterVersion version;
@@ -102,6 +103,20 @@ public class ApiCluster {
 
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
+  }
+
+  /**
+   * Readonly. The UUID of the cluster.
+   * <p>
+   * Available since API v15.
+   */
+  @XmlElement
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
   }
 
   /**

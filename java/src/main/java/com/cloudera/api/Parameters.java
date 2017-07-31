@@ -46,6 +46,11 @@ public final class Parameters {
   static public final String MUST_USE_DESIRED_ROLLUP = "mustUseDesiredRollup";
   static public final String FILTER = "filter";
   static public final String COMMAND_NAME = "commandName";
+  static public final String DIR_PATH = "directoryPath";
+  static public final String EXTERNAL_ACCOUNT_NAME = "name";
+  static public final String EXTERNAL_ACCOUNT_TYPE_NAME = "typeName";
+  static public final String EXTERNAL_ACCOUNT_CATEGORY_NAME = "categoryName";
+  static public final String DISPLAY_NAME = "displayName";
 
   /* Common query params. */
   static public final String FROM = "from";

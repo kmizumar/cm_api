@@ -14,6 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os.path
 
 from setuptools import setup, find_packages
 
@@ -35,13 +36,18 @@ if platform == 'darwin':
 
 # Optional PySocks support
 extras_require = dict(Socks=['PySocks >= 1.5.0'])
+setup_dir = os.path.split(__file__)[0]
+if setup_dir == '':
+  setup_dir = '.';
+base_dir = os.path.relpath(os.path.normpath(setup_dir), os.getcwd())
+src_dir = os.path.normpath(os.path.join(base_dir, 'src'))
 
 setup(
   name = 'cm_api',
-  version = '12.0.0',    # Compatible with API v12 (CM 5.7)
-  packages = find_packages('src', exclude=['cm_api_tests']),
-  package_dir = {'cm_api': 'src/cm_api',
-                 'cm_shell': 'src/cm_shell'},
+  version = '16.0.0',    # Compatible with API v16 (CM 5.11)
+  packages = find_packages(src_dir, exclude=['cm_api_tests']),
+  package_dir = {'': src_dir },
+  zip_safe = True,
 
   # Project uses simplejson, so ensure that it gets installed or upgraded
   # on the target machine
